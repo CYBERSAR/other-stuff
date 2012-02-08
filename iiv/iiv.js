@@ -1,1 +1,0 @@
-/usr/local/fedora/tomcat/webapps/iiv/js/iiv.js
