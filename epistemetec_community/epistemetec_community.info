@@ -1,0 +1,9 @@
+; $Id: epistemetec_community.info,v 1.0 2009/01/01 21:55:00 author Exp $
+name = Epistemetec Community
+description = Custom module to do some stuff
+package = Other
+core = 6.x
+
+version = "6.x"
+project = "epistemetec"
+datestamp = "1229018427"

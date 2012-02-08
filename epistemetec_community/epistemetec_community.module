@@ -1,0 +1,355 @@
+<?php
+// $Id$
+
+/* globals */
+global $dashboard_name;
+$dashboard_name = "dashboard";
+
+global $dashboard_user_profile;
+$dashboard_user_profile = $dashboard_name . "/user";
+
+global $user_profile_namedtab;
+$user_profile_namedtab = "user-profile";
+
+global $dashboard_book;
+$dashboard_book = $dashboard_name . "/view";
+
+global $dashboard_namedtab;
+$dashboard_namedtab = "dashboard";
+
+$user_editprofile_path = $dashboard_user_profile . "/edit#" . $user_profile_namedtab;
+
+global $user_profile_empty_text;
+$user_profile_empty_text =
+   '<div id="user-profile-tab-message"> ' .
+   'Non hai ancora impostato le informazioni sul tuo profilo, clicca ' .
+   '<a href="' . $user_editprofile_path . '">qui</a> ' .
+   'per aggiungerle. </div>';
+
+function epistemetec_community_menu() {
+//Callback per i pannelli.
+  $items['dashboard'] = array(
+        'title' => '',
+        'page callback' => 'dashboard_page',    
+        'access callback' => TRUE,
+        );
+
+  $items['dashboard/home'] = array(
+	'title' => t('Dashboard'),
+	'access callback' => TRUE,
+	'type' => MENU_DEFAULT_LOCAL_TASK,
+	'weight' => -10,
+	);
+ /* $items['dashboard/profilo'] = array(
+        'title' => t('Profilo'),
+        'access callback' => TRUE,
+        'type' => MENU_LOCAL_TASK,
+        'weight' => -1,
+        );*/
+
+ $items['dashboard/twitter'] = array(
+        'title' => t('Twitter'),
+        'access callback' => TRUE,
+        'type' => MENU_LOCAL_TASK,
+        'weight' => -5,
+        );
+ $items['dashboard/preferiti'] = array(
+        'title' => t('Preferiti'),
+        'access callback' => TRUE,
+        'type' => MENU_LOCAL_TASK,
+        'weight' => -3,
+        );
+
+  return $items;
+
+}
+function dashboard_page() {
+  return t("");
+}
+
+
+function epistemetec_community_form_alter(&$form, $form_state, $form_id) {
+
+	global $dashboard_user_profile;
+	global $user_profile_namedtab;
+	global $dashboard_book;
+	global $dashboard_namedtab;
+
+	switch ( $form_id ) {
+
+		case "book_node_form":
+
+			$nid = $form['nid']['#value'];
+			
+			$form['#redirect'] = array( $dashboard_book . "/" . $nid, NULL, $dashboard_namedtab );
+
+			unset($form['buttons']['delete']);
+
+			break;
+
+		case "profile_node_form":
+
+			unset($form['body_field']);
+
+			//pass right args to the "drupal_goto" function (common.inc)
+			$form['#redirect'] = array( $dashboard_user_profile, NULL, $user_profile_namedtab );
+
+			break;
+
+	}
+
+	cache_clear_all();
+}
+
+
+
+
+function paneltab_userprofile() {
+	// required for Drupal 6
+	module_load_include('inc', 'node', 'node.pages');
+
+	$node_type = 'profile';
+
+	$form_id = $node_type . '_node_form';
+
+	global $user;
+
+	if ( arg(0) == 'dashboard' ) {
+			
+		if ( arg(1) == 'user' && arg(2) == 'edit' ) {
+
+			$node = content_profile_load( $node_type, $user->uid );
+
+			if ( !$node ) {
+				$node->uid = $user->uid;
+				$node->name = (isset($user->name) ? $user->name : '');
+				$node->type = $node_type;
+					
+				// Invoke hook_nodapi and hook_node
+				node_object_prepare($node);
+			}
+
+			$output = drupal_get_form( $form_id, $node );
+		}
+		else {
+
+			$view_name = 'view_my_profile';
+			$display_id = '';
+
+			$view = views_get_view( $view_name );
+
+			if ( ! empty ( $view ) ) {
+				$output = $view->execute_display( $display_id , $user->uid );
+			}
+
+		}
+	}
+
+	return $output;
+}
+
+
+function minipanelsection_dashboard_main() {
+	// required for Drupal 6
+	module_load_include('inc', 'node', 'node.pages');
+
+	$node_type = 'book';
+	$output = "Sulla destra di questa pagina dovresti vedere i tuoi libri. Se non hai ancora creato un libro clicca sul link 'Crea libro' per crearne uno.";
+
+	$form_id = $node_type . '_node_form';
+
+	global $user;
+
+	if (!$user->uid) {
+		return t("Please login to access community features.");
+	}
+
+	if ( arg(0) == 'dashboard' ) {
+
+		if ( arg(1) == 'new' ) {
+                        
+			if ( arg(2) ) {
+                            //this is a child page... so we have the parent nid as arg(2)
+			    $node->book['bid'] = arg(2);
+			}
+                        else {
+                            $node->book['bid'] = "new";
+                        }
+			// create a blank node
+			$node->uid = $user->uid;
+			$node->name = (isset($user->name) ? $user->name : '');
+			$node->type = $node_type;
+			 
+			// Invoke hook_nodapi and hook_node
+			node_object_prepare($node);
+
+			$output = drupal_get_form($form_id, $node);
+
+		}
+		elseif ( arg(1) == 'new_from_node' ) {
+			//verify that arg2 is a real node id
+			$node_exists = node_load( arg(2) );
+
+                        if ($node_exists) {
+				$node->book['bid'] = "new";
+				$node->uid = $user->uid;
+                        	$node->name = (isset($user->name) ? $user->name : '');
+                        	$node->type = $node_type;
+				$node->body = "[[nid:" . arg(2) . "]]";
+
+                        	// Invoke hook_nodapi and hook_node
+                        	node_object_prepare($node);
+
+                        	$output = drupal_get_form($form_id, $node);
+			}
+
+		}
+		elseif ( arg(1) == 'edit' ) {
+
+			$node = node_load( arg(2) );
+
+			if ($node) {
+				$output = drupal_get_form($form_id, $node);
+			}
+
+		}
+		elseif ( arg(1) == 'view' ) {
+
+			$view_name = 'view_my_books';
+			$view_args = array( arg(2) );
+			$display_id = '';
+			 
+			$view = views_get_view( $view_name );
+			if ( ! empty ( $view ) ) {
+				$output = $view->execute_display( $display_id , $view_args );
+			}
+
+		}
+		elseif ( arg(1) == 'delete' ) {
+			$node_exists = node_load( arg(2) );
+
+                        if ($node_exists && $node_exists->uid == $user->uid) {
+				node_delete($node_exists->nid);
+				$output = "nodo eliminato correttamente";
+			}
+			else {
+				$output = "non hai i permessi per eliminare questo nodo.";
+			}
+		}
+	}
+
+	return $output;
+}
+
+function minipanelsection_dashboard_newbook() {
+	global $base_url;
+	$dashboard_addnew_book_path = $base_url . "/dashboard/new#dashboard";
+
+	$output = '<div id="create-new-book">';
+	$output.= '<a href="' . $dashboard_addnew_book_path . '">Crea un nuovo libro...</a>';
+	$output.= '</div>';
+
+	return $output;
+}
+
+function minipanelsection_dashboard_mybooks() {
+	$view_name = 'view_compact_books';
+	$view_args = array();
+	$display_id = '';
+	 
+	$view = views_get_view( $view_name );
+	if ( ! empty ( $view ) ) {
+		return $view->execute_display( $display_id , $view_args );
+	}
+	 
+	return false;
+}
+
+
+function epi_menu_tree( $tree ) {
+	global $base_url;
+        
+	$dashboard_view_book_path = $base_url . "/dashboard/view/";
+	$tab = "#dashboard";
+        
+
+	//$output = '<div class="book_tree_box" id="book_tree_1">';
+	foreach ( $tree as $i => $data ) {
+                
+		$title = $data['link']['title'];
+		$depth = $data['link']['depth'];
+
+		$href = explode( "/", $data['link']['link_path'] );
+		$href = $dashboard_view_book_path . $href[1] . $tab;
+
+               // $output = "";
+                
+                if ($depth == 1) {
+                    $class = "book_tree book_tree_parent";
+                    $output .= '<div id="book_tree_parent_' . $depth . '">';
+                } else {
+                    $class = "book_tree book_tree_child depth_" . $depth;
+                }
+                
+		/*$class = $depth == 1 ? "book_tree_parent_" . $counter : "book_tree_child";
+		$class.= " book_tree_item";
+		$class.= " depth_" . $depth;*/
+
+		$output.= '<a href="' . $href . '" class="' . $class . '" title="' . $title . '">' . $title . '</a>';
+                   
+		if ( $data['below'] ) {
+			$output.= epi_menu_tree( $data['below'] );
+		}
+	}
+        $output .= "</div>";
+	return $output;
+}
+
+function minipanelsection_dashboard_booktree() {
+	global $base_url;
+	$nid = arg(2);
+	
+	if ( $nid ) {
+	    $node = node_load($nid);
+	    
+	    if(isset($node->book)) { // book page
+                  $parent = book_link_load($node->book['plid']);
+                  $parent_node_id = $parent['nid'];
+            }
+	    
+	    if ($parent_node_id == 0) { //father
+	       $trees = menu_tree_all_data( book_menu_name( $nid ) );
+	       $add_link = "../new/$nid#dashboard";
+	       $add_link = "<a href='$add_link'>" . t("Add a child page") . "</a>";
+            }
+	    else {
+	       $trees = menu_tree_all_data( book_menu_name( $parent_node_id ) );
+	       $add_link = "../new/$parent_node_id#dashboard";
+	       $add_link = "<a href='$add_link'>" . t("Add a sibling page") . "</a>";
+            }
+		
+            if ( !empty($trees) ) {
+                print epi_menu_tree( $trees );
+                
+                echo '<div class="actions">';
+
+		$alter_link = "../edit/$nid#dashboard";
+		echo "<a href='$alter_link'>" . t("Modify this page") . "</a>";
+
+                $del_link = "../delete/$nid#dashboard";
+                echo "<a href='$del_link'>" . t("Delete this page") . "</a>";
+
+                echo $add_link . "</div>";
+
+            }
+            
+	}
+
+	return false;
+}
+
+function epistemetec_community_menu_alter(&$items){
+	$items['user/%user/view']['title'] = 'Il mio profilo';
+	$items['user/%user_category/edit']['title'] = "Dati d'accesso";
+}//end modulename_menu_alter
+
