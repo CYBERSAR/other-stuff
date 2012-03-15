@@ -235,7 +235,11 @@ function minipanelsection_dashboard_main() {
 				if ($node_exists->book->nid == $node_exists->book->bid) {
 					$tree = menu_tree_all_data( book_menu_name( $node_exists->nid ) );
 					
-					print_r($tree);
+					foreach ($tree as $parent) {
+						recursive_bms_page_deletion($parent);
+					}
+					
+					//print_r($tree);
 				}
 				
 				
@@ -251,6 +255,29 @@ function minipanelsection_dashboard_main() {
 	}
 
 	return $output;
+}
+
+/**
+ * Remove Book Made Simple pages recursively
+ * 
+ * @param unknown_type $arr
+ */
+function recursive_bms_page_deletion($arr) {
+	if (!isset($arr['below']) || $arr['below'] == "") {
+		$link_path = explode( "/", $arr['link']['link_path'] );
+		
+		if (isset($link_path[1])) {
+			$nid = $link_path[1];
+			echo "deleting $nid <br><br>";
+			//node_delete($nid);
+		}
+		
+		return;
+	}
+	
+	foreach ($arr['below'] as $child) {
+		recursive_bms_page_deletion($child);
+	}
 }
 
 function minipanelsection_dashboard_newbook() {
