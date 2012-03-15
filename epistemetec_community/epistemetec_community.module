@@ -218,7 +218,7 @@ function minipanelsection_dashboard_main() {
 			$view_name = 'view_my_books';
 			$view_args = array( arg(2) );
 			$display_id = '';
-
+print_r($view_args);
 			$view = views_get_view( $view_name );
 			if ( ! empty ( $view ) ) {
 				$output = $view->execute_display( $display_id , $view_args );
@@ -230,7 +230,7 @@ function minipanelsection_dashboard_main() {
 
 			if ($node_exists && $node_exists->uid == $user->uid) {
 				//node_delete($node_exists->nid);
-				print_r($node_exists);
+				
 				$output = "nodo eliminato correttamente";
 			}
 			else {
