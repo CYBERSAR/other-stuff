@@ -59,7 +59,7 @@ function epistemetec_community_menu() {
         'type' => MENU_LOCAL_TASK,
         'weight' => -3,
 	);
-
+	
 	return $items;
 
 }
@@ -231,20 +231,16 @@ function minipanelsection_dashboard_main() {
 			if ($node_exists && $node_exists->uid == $user->uid) {
 				
 				//check if we are deleting master book page
-				//if yes, we need to delete also the book children
+				//if yes, we need to delete also book's children
 				if ($node_exists->book->nid == $node_exists->book->bid) {
 					$tree = menu_tree_all_data( book_menu_name( $node_exists->nid ) );
 					
 					foreach ($tree as $parent) {
 						recursive_bms_page_deletion($parent);
 					}
-					
-					//print_r($tree);
 				}
 				
-				
-				
-				//node_delete($node_exists->nid);
+				node_delete($node_exists->nid);
 				
 				$output = "nodo eliminato correttamente";
 			}
@@ -268,8 +264,7 @@ function recursive_bms_page_deletion($arr) {
 		
 		if (isset($link_path[1])) {
 			$nid = $link_path[1];
-			echo "deleting $nid <br><br>";
-			//node_delete($nid);
+			node_delete($nid);
 		}
 		
 		return;
@@ -359,12 +354,12 @@ function minipanelsection_dashboard_booktree() {
 		if ($parent_node_id == 0) { //father
 			$trees = menu_tree_all_data( book_menu_name( $nid ) );
 			$add_link = "../new/$nid#dashboard";
-			$add_link = "<a href='$add_link'>" . t("Add a child page") . "</a>";
+			$add_link = "<a href='$add_link'>" . t("Aggiungi una sottopagina") . "</a>";
 		}
 		else {
 			$trees = menu_tree_all_data( book_menu_name( $parent_node_id ) );
 			$add_link = "../new/$parent_node_id#dashboard";
-			$add_link = "<a href='$add_link'>" . t("Add a sibling page") . "</a>";
+			$add_link = "<a href='$add_link'>" . t("Aggiungi una pagina sullo stesso livello") . "</a>";
 		}
 
 		if ( !empty($trees) ) {
@@ -373,10 +368,10 @@ function minipanelsection_dashboard_booktree() {
 			echo '<div class="actions">';
 
 			$alter_link = "../edit/$nid#dashboard";
-			echo "<a href='$alter_link'>" . t("Modify this page") . "</a>";
+			echo "<a href='$alter_link'>" . t("Modifica questa pagina") . "</a>";
 
 			$del_link = "../delete/$nid#dashboard";
-			echo "<a href='$del_link'>" . t("Delete this page") . "</a>";
+			echo "<a href='$del_link'>" . t("Elimina questa pagina (e le sottopagine)") . "</a>";
 
 			echo $add_link . "</div>";
 
