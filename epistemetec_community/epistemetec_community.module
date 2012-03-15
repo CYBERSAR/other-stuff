@@ -218,7 +218,7 @@ function minipanelsection_dashboard_main() {
 			$view_name = 'view_my_books';
 			$view_args = array( arg(2) );
 			$display_id = '';
-print_r(node_load( arg(2) ));
+			
 			$view = views_get_view( $view_name );
 			if ( ! empty ( $view ) ) {
 				$output = $view->execute_display( $display_id , $view_args );
@@ -229,6 +229,17 @@ print_r(node_load( arg(2) ));
 			$node_exists = node_load( arg(2) );
 
 			if ($node_exists && $node_exists->uid == $user->uid) {
+				
+				//check if we are deleting master book page
+				//if yes, we need to delete also the book children
+				if ($node_exists->nid == $node_exists->bid) {
+					$tree = menu_tree_all_data( book_menu_name( $node_exists->nid ) );
+					
+					print_r($tree);
+				}
+				
+				
+				
 				//node_delete($node_exists->nid);
 				
 				$output = "nodo eliminato correttamente";
