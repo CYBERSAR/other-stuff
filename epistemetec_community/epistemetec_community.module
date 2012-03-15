@@ -80,7 +80,7 @@ function epistemetec_community_form_alter(&$form, $form_state, $form_id) {
 
 		case "book_node_form":
 			$nid = $form['nid']['#value'];
-			$form['#redirect'] = array( $dashboard_book . "/" . $nid, NULL, $dashboard_namedtab );
+			$form['#redirect'] = $nid ? array( $dashboard_book . "/" . $nid, NULL, $dashboard_namedtab ) : array( $dashboard_book, NULL, '' );
 
 			unset($form['buttons']['delete']);
 
@@ -175,7 +175,6 @@ function minipanelsection_dashboard_main() {
 			node_object_prepare($node);
 
 			$output = drupal_get_form($form_id, $node);
-
 		}
 		elseif (arg(1) == 'new_from_node') {
 			//verify that arg2 is a real node id
