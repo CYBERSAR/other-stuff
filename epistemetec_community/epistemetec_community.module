@@ -229,7 +229,7 @@ function minipanelsection_dashboard_main() {
 			$node_exists = node_load( arg(2) );
 
 			if ($node_exists && $node_exists->uid == $user->uid) {
-				
+				var_dump($node_exists);
 				echo "NID: " . $node_exists->nid . "<br>";
 				echo "BID: " . $node_exists->bid . "<br><br>";
 				
