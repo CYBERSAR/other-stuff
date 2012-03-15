@@ -230,6 +230,8 @@ function minipanelsection_dashboard_main() {
 
 			if ($node_exists && $node_exists->uid == $user->uid) {
 				
+				echo "NID: " . $node_exists->nid . "\n\n";
+				
 				//check if we are deleting master book page
 				//if yes, we need to delete also the book children
 				if ($node_exists->nid == $node_exists->bid) {
