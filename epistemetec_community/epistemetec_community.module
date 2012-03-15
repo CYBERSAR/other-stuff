@@ -226,7 +226,9 @@ function minipanelsection_dashboard_main() {
 			if ( ! empty ( $view ) ) {
 				$output = $view->execute_display( $display_id , $view_args );
 			}
-
+			else {
+				$output = "La pagina a cui stai tentando di accedere non esiste.";
+			}
 		}
 		elseif ( arg(1) == 'delete' ) {
 			$node_exists = node_load( arg(2) );
