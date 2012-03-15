@@ -63,6 +63,7 @@ function epistemetec_community_menu() {
 	return $items;
 
 }
+
 function dashboard_page() {
 	return t("");
 }
@@ -75,27 +76,22 @@ function epistemetec_community_form_alter(&$form, $form_state, $form_id) {
 	global $dashboard_book;
 	global $dashboard_namedtab;
 
-	switch ( $form_id ) {
+	switch ($form_id) {
 
 		case "book_node_form":
-
 			$nid = $form['nid']['#value'];
-				
 			$form['#redirect'] = array( $dashboard_book . "/" . $nid, NULL, $dashboard_namedtab );
 
 			unset($form['buttons']['delete']);
 
 			break;
-
 		case "profile_node_form":
-
 			unset($form['body_field']);
 
 			//pass right args to the "drupal_goto" function (common.inc)
 			$form['#redirect'] = array( $dashboard_user_profile, NULL, $user_profile_namedtab );
 
 			break;
-
 	}
 
 	cache_clear_all();
@@ -114,13 +110,12 @@ function paneltab_userprofile() {
 
 	global $user;
 
-	if ( arg(0) == 'dashboard' ) {
+	if (arg(0) == 'dashboard') {
 			
-		if ( arg(1) == 'user' && arg(2) == 'edit' ) {
+		if (arg(1) == 'user' && arg(2) == 'edit') {
+			$node = content_profile_load($node_type, $user->uid);
 
-			$node = content_profile_load( $node_type, $user->uid );
-
-			if ( !$node ) {
+			if (!$node) {
 				$node->uid = $user->uid;
 				$node->name = (isset($user->name) ? $user->name : '');
 				$node->type = $node_type;
@@ -132,16 +127,14 @@ function paneltab_userprofile() {
 			$output = drupal_get_form( $form_id, $node );
 		}
 		else {
-
 			$view_name = 'view_my_profile';
 			$display_id = '';
 
-			$view = views_get_view( $view_name );
+			$view = views_get_view($view_name);
 
-			if ( ! empty ( $view ) ) {
-				$output = $view->execute_display( $display_id , $user->uid );
+			if (!empty($view)) {
+				$output = $view->execute_display($display_id , $user->uid);
 			}
-
 		}
 	}
 
@@ -164,11 +157,9 @@ function minipanelsection_dashboard_main() {
 		return t("Please login to access community features.");
 	}
 
-	if ( arg(0) == 'dashboard' ) {
-
-		if ( arg(1) == 'new' ) {
-
-			if ( arg(2) ) {
+	if (arg(0) == 'dashboard') {
+		if (arg(1) == 'new') {
+			if (arg(2)) {
 				//this is a child page... so we have the parent nid as arg(2)
 				$node->book['bid'] = arg(2);
 			}
@@ -186,9 +177,9 @@ function minipanelsection_dashboard_main() {
 			$output = drupal_get_form($form_id, $node);
 
 		}
-		elseif ( arg(1) == 'new_from_node' ) {
+		elseif (arg(1) == 'new_from_node') {
 			//verify that arg2 is a real node id
-			$node_exists = node_load( arg(2) );
+			$node_exists = node_load(arg(2));
 
 			if ($node_exists) {
 				$node->book['bid'] = "new";
@@ -204,9 +195,9 @@ function minipanelsection_dashboard_main() {
 			}
 
 		}
-		elseif ( arg(1) == 'edit' ) {
+		elseif (arg(1) == 'edit') {
 
-			$node = node_load( arg(2) );
+			$node = node_load(arg(2));
 
 			if ($node) {
 				$output = drupal_get_form($form_id, $node);
@@ -216,29 +207,26 @@ function minipanelsection_dashboard_main() {
 			}
 
 		}
-		elseif ( arg(1) == 'view' ) {
+		elseif (arg(1) == 'view') {
 
 			$view_name = 'view_my_books';
-			$view_args = array( arg(2) );
+			$view_args = array(arg(2));
 			$display_id = '';
 			
-			$view = views_get_view( $view_name );
-			if ( ! empty ( $view ) ) {
-				$output = $view->execute_display( $display_id , $view_args );
-			}
-			else {
-				$output = "La pagina a cui stai tentando di accedere non esiste.";
+			$view = views_get_view($view_name);
+			if (!empty($view)) {
+				$output = $view->execute_display($display_id , $view_args);
 			}
 		}
-		elseif ( arg(1) == 'delete' ) {
-			$node_exists = node_load( arg(2) );
+		elseif (arg(1) == 'delete') {
+			$node_exists = node_load(arg(2));
 
 			if ($node_exists && $node_exists->uid == $user->uid) {
 				
 				//check if we are deleting master book page
 				//if yes, we need to delete also book's children
 				if ($node_exists->book->nid == $node_exists->book->bid) {
-					$tree = menu_tree_all_data( book_menu_name( $node_exists->nid ) );
+					$tree = menu_tree_all_data(book_menu_name($node_exists->nid));
 					
 					foreach ($tree as $parent) {
 						recursive_bms_page_deletion($parent);
@@ -247,7 +235,7 @@ function minipanelsection_dashboard_main() {
 				
 				node_delete($node_exists->nid);
 				
-				$output = "nodo eliminato correttamente";
+				drupal_goto("dashboard");
 			}
 			else {
 				$output = "non hai i permessi per eliminare questo nodo.";
@@ -296,16 +284,16 @@ function minipanelsection_dashboard_mybooks() {
 	$view_args = array();
 	$display_id = '';
 
-	$view = views_get_view( $view_name );
-	if ( ! empty ( $view ) ) {
-		return $view->execute_display( $display_id , $view_args );
+	$view = views_get_view($view_name);
+	if (!empty($view)) {
+		return $view->execute_display($display_id , $view_args);
 	}
 
 	return false;
 }
 
 
-function epi_menu_tree( $tree ) {
+function epi_menu_tree($tree) {
 	global $base_url;
 
 	$dashboard_view_book_path = $base_url . "/dashboard/view/";
@@ -313,12 +301,12 @@ function epi_menu_tree( $tree ) {
 
 
 	//$output = '<div class="book_tree_box" id="book_tree_1">';
-	foreach ( $tree as $i => $data ) {
+	foreach ($tree as $i => $data) {
 
 		$title = $data['link']['title'];
 		$depth = $data['link']['depth'];
 
-		$href = explode( "/", $data['link']['link_path'] );
+		$href = explode("/", $data['link']['link_path']);
 		$href = $dashboard_view_book_path . $href[1] . $tab;
 
 		// $output = "";
@@ -337,7 +325,7 @@ function epi_menu_tree( $tree ) {
 		$output.= '<a href="' . $href . '" class="' . $class . '" title="' . $title . '">' . $title . '</a>';
 		 
 		if ( $data['below'] ) {
-			$output.= epi_menu_tree( $data['below'] );
+			$output.= epi_menu_tree($data['below']);
 		}
 	}
 	$output .= "</div>";
@@ -348,7 +336,7 @@ function minipanelsection_dashboard_booktree() {
 	global $base_url;
 	$nid = arg(2);
 
-	if ( $nid ) {
+	if ($nid) {
 		$node = node_load($nid);
 	  
 		if(isset($node->book)) { // book page
@@ -362,12 +350,12 @@ function minipanelsection_dashboard_booktree() {
 			$add_link = "<a href='$add_link'>" . t("Aggiungi una sottopagina") . "</a>";
 		}
 		else {
-			$trees = menu_tree_all_data( book_menu_name( $parent_node_id ) );
+			$trees = menu_tree_all_data(book_menu_name($parent_node_id));
 			$add_link = "../new/$parent_node_id#dashboard";
 			$add_link = "<a href='$add_link'>" . t("Aggiungi una pagina sullo stesso livello") . "</a>";
 		}
 
-		if ( !empty($trees) ) {
+		if (!empty($trees)) {
 			print epi_menu_tree( $trees );
 
 			echo '<div class="actions">';
