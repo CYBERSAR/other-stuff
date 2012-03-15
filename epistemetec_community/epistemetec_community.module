@@ -218,7 +218,7 @@ function minipanelsection_dashboard_main() {
 			$view_name = 'view_my_books';
 			$view_args = array( arg(2) );
 			$display_id = '';
-print_r($view_args);
+print_r(node_load( arg(2) ));
 			$view = views_get_view( $view_name );
 			if ( ! empty ( $view ) ) {
 				$output = $view->execute_display( $display_id , $view_args );
