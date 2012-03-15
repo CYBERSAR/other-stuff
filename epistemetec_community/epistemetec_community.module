@@ -79,8 +79,9 @@ function epistemetec_community_form_alter(&$form, $form_state, $form_id) {
 	switch ($form_id) {
 
 		case "book_node_form":
+			var_dump($form);
 			$nid = $form['nid']['#value'];
-			$form['#redirect'] = $nid ? array( $dashboard_book . "/" . $nid, NULL, $dashboard_namedtab ) : array( $dashboard_book, NULL, '' );
+			$form['#redirect'] = $nid ? array( $dashboard_book . "/" . $nid, NULL, $dashboard_namedtab ) : array( $dashboard_name, NULL, '' );
 
 			unset($form['buttons']['delete']);
 
