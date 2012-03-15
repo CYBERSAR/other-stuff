@@ -211,6 +211,9 @@ function minipanelsection_dashboard_main() {
 			if ($node) {
 				$output = drupal_get_form($form_id, $node);
 			}
+			else {
+				$output = "La pagina a cui stai tentando di accedere non esiste.";
+			}
 
 		}
 		elseif ( arg(1) == 'view' ) {
