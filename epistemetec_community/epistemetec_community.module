@@ -75,6 +75,7 @@ function epistemetec_community_form_alter(&$form, $form_state, $form_id) {
 	global $user_profile_namedtab;
 	global $dashboard_book;
 	global $dashboard_namedtab;
+	global $dashboard_name;
 
 	switch ($form_id) {
 
