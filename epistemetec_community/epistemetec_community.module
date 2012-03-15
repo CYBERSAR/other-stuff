@@ -86,7 +86,7 @@ function epistemetec_community_form_alter(&$form, $form_state, $form_id) {
 			}
 			elseif (isset($form['#action'])) {
 				$nid = explode("/", $form['#action']);
-				$redirect = array($dashboard_book . "/" . $form['#action'], NULL, $dashboard_namedtab);
+				$redirect = array($dashboard_book . "/" . end($form['#action']), NULL, $dashboard_namedtab);
 			}
 			else {
 				$redirect = array($dashboard_name, NULL, '');
