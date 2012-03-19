@@ -1,0 +1,8 @@
+core = "6.x"
+dependencies[] = "fe_block"
+description = "contiene il blocco per il clone degli oggetti fedora"
+features[fe_block_boxes][] = "clone_fedora_object_block"
+name = "EPI feat clone block"
+package = "Features"
+project = "epi_feat_clone_block"
+version = "6.x-1.0"
